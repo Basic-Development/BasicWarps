@@ -1,4 +1,4 @@
 name: $name
 version: $version
-main: com.vestriamc.template.TemplatePlugin
+main: com.vestriamc.basicwarps.BasicWarps
 api-version: 1.20
