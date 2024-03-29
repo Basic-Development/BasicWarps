@@ -1,0 +1,4 @@
+name: $name
+version: $version
+main: com.vestriamc.template.TemplatePlugin
+api-version: 1.20
