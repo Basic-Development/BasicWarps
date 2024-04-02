@@ -1,0 +1,10 @@
+# Set the Plugin Prefix using MiniMessage Formatting. Defaults to "[Warps] " if not set.
+# See https://docs.advntr.dev/minimessage/format.html for Formatting Instructions
+plugin-prefix: "<gradient:#8737FF:#C800FF><bold>Warps » </bold></gradient>"
+
+#Set the Admin Prefix for plugin messages that players will not see. Defaults to "[WarpAdmin] " if not set.
+admin-prefix: "<gradient:#8737FF:#C800FF:#FF3C04><bold>WarpsAdmin » </bold></gradient>"
+
+# Set the delay (in seconds) that a Player has to wait before warping
+# This delay can be bypassed with the permission warps.timer.bypass
+teleport-delay: 5

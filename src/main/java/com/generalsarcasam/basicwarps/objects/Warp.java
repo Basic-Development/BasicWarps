@@ -5,6 +5,8 @@ import org.bukkit.inventory.ItemStack;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.framework.qual.DefaultQualifier;
 
+import java.util.Map;
+
 @DefaultQualifier(NonNull.class)
 public final class Warp {
 
@@ -21,6 +23,11 @@ public final class Warp {
         this.category = category;
         this.warpIcon = warpIcon;
         this.location = location;
+
+        Map<String, Warp> warps = category.warps();
+        warps.put(this.key, this);
+        category.warps(warps);
+
     }
 
     public void key(final String key) {
@@ -28,7 +35,20 @@ public final class Warp {
     }
 
     public void category(final WarpCategory category) {
+
+        //Remove this warp from the previous parent category
+        WarpCategory oldCategory = this.category;
+        Map<String, Warp> oldWarps = oldCategory.warps();
+        oldWarps.remove(this.key);
+        oldCategory.warps(oldWarps);
+
+        //Update the category variable
         this.category = category;
+
+        //Update the new category to add this warp
+        Map<String, Warp> warps = category.warps();
+        warps.put(this.key, this);
+        category.warps(warps);
     }
 
     public void warpIcon(final ItemStack warpIcon) {

@@ -17,7 +17,4 @@ public final class WarpCategoryMenu {
         return this.category;
     }
 
-    public void category(final WarpCategory category) {
-        this.category = category;
-    }
 }
