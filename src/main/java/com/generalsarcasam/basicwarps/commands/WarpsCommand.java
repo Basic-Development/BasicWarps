@@ -18,10 +18,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.framework.qual.DefaultQualifier;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @DefaultQualifier(NonNull.class)
@@ -33,6 +38,23 @@ public final class WarpsCommand {
             context -> context.getCommandContext().getSender().sendMessage(Messages.confirmGenericAction()),
             sender -> sender.sendMessage("You don't have any pending commands")
     );
+
+    @Nullable
+    public static List<UUID> warpingPlayers;
+
+    public WarpsCommand() {
+        if (warpingPlayers == null) {
+            warpingPlayers = new ArrayList<>();
+        }
+    }
+
+    public static List<UUID> getWarpingPlayers() {
+        return Objects.requireNonNullElse(warpingPlayers, new ArrayList<>());
+    }
+
+    public static void setWarpingPlayers(final List<UUID> warpingPlayers) {
+        WarpsCommand.warpingPlayers = warpingPlayers;
+    }
 
     public void register(final CommandManager<CommandSender> commandManager) {
 
@@ -132,6 +154,7 @@ public final class WarpsCommand {
 
         CommandSender sender = context.getSender();
         Player player = (Player) sender;
+        UUID uuid = player.getUniqueId();
 
         Warp warp = context.get("warp");
 
@@ -161,36 +184,30 @@ public final class WarpsCommand {
             return;
         }
 
-        //Get back on main thread to teleport player after some delay
-        //todo: make this way cleaner, so that your teleport is cancelled as soon as you move instead of
-        // only after waiting out the delay.
-        //todo: handle if players try to issue multiple warp commands while they're actively waiting on a warp
-        //todo: pull in configured value for warp delay timer
+        List<UUID> warpingPlayerList = WarpsCommand.getWarpingPlayers();
+        warpingPlayerList.add(uuid);
+        WarpsCommand.setWarpingPlayers(warpingPlayerList);
+
+        //Get back on main thread to teleport player after 5s delay
         BukkitRunnable runnable = new BukkitRunnable() {
             @Override
             public void run() {
-                Location currentLocation = player.getLocation();
-                double currentX = currentLocation.getX();
-                double currentY = currentLocation.getY();
-                double currentZ = currentLocation.getZ();
+                List<UUID> warpList = WarpsCommand.getWarpingPlayers();
 
-                //Ensure player is within 1 block of where they issued the command from
-                // this ensures they don't move, but don't get yelled at for wiggling.
-                if (currentX <= x + 1 && currentX >= x - 1) {
-                    if (currentY <= y + 1 && currentY >= y - 1) {
-                        if (currentZ <= z + 1 && currentZ >= z - 1) {
-                            player.teleport(warp.location());
-                            player.sendMessage(Messages.teleported(warp));
-                            return;
-                        }
-                    }
+                if (warpList.contains(uuid)) {
+                    //They haven't had their warp cancelled.
+                    player.teleport(warp.location());
+                    player.sendMessage(Messages.teleported(warp));
                 }
-                player.sendMessage(Messages.teleportCancelled());
+
+                //They warped, so remove them from the waiting-to-warp list
+                warpList.remove(uuid);
+                WarpsCommand.setWarpingPlayers(warpList);
 
             }
         };
-        runnable.runTaskLater(BasicWarps.plugin, 5 * 20);
 
+        runnable.runTaskLater(BasicWarps.plugin, 5 * 20);
     }
 
     private void handleOpenWarpsGUI(final CommandContext<CommandSender> context) {

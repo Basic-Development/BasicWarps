@@ -6,6 +6,8 @@ import cloud.commandframework.execution.AsynchronousCommandExecutionCoordinator;
 import cloud.commandframework.paper.PaperCommandManager;
 import com.generalsarcasam.basicwarps.commands.WarpsCommand;
 import com.generalsarcasam.basicwarps.listeners.InventoryClickEventListener;
+import com.generalsarcasam.basicwarps.listeners.EntityDamageEventListener;
+import com.generalsarcasam.basicwarps.listeners.PlayerMoveEventListener;
 import com.generalsarcasam.basicwarps.objects.WarpCategory;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.NamespacedKey;
@@ -53,6 +55,8 @@ public final class BasicWarps extends JavaPlugin {
         //Register Listeners
         PluginManager pm = this.getServer().getPluginManager();
         pm.registerEvents(new InventoryClickEventListener(), this);
+        pm.registerEvents(new PlayerMoveEventListener(), this);
+        pm.registerEvents(new EntityDamageEventListener(), this);
     }
 
     private CommandManager<CommandSender> createCommandManager() {

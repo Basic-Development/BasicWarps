@@ -96,8 +96,8 @@ public final class Messages {
         return formatAdmin("Deleted the category " + category.key(), MESSAGE_COLOR);
     }
 
-    public static Component teleportCancelled() {
-        return format("Your teleport was cancelled! Did you move?", ERROR_COLOR);
+    public static Component teleportCancelled(final String cancelReason) {
+        return format("Your warp was cancelled! " + cancelReason, ERROR_COLOR);
     }
 
     public static Component teleported(final Warp warp) {
