@@ -21,12 +21,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.framework.qual.DefaultQualifier;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @DefaultQualifier(NonNull.class)
@@ -59,7 +54,7 @@ public final class WarpsCommand {
     public void register(final CommandManager<CommandSender> commandManager) {
 
         Command.Builder<CommandSender> baseCommand = commandManager
-                .commandBuilder("warps", "basicwarps", "bw")
+                .commandBuilder("basicwarps", "warps", "bw")
                 .senderType(Player.class)
                 .permission("warps.command");
 
@@ -69,13 +64,13 @@ public final class WarpsCommand {
                 .argument(new WarpArgument())
                 .handler(this::handleWarp));
 
-        //Command: /warps create warp <name> <category>
+        //Command: /warps create warp <category> <name>
         commandManager.command(baseCommand
                 .literal("create")
                 .literal("warp")
                 .permission("warps.command.create.warp")
-                .argument(StringArgument.of("name"))
                 .argument(new WarpCategoryArgument())
+                .argument(StringArgument.of("name"))
                 .handler(this::handleCreateWarp)
         );
 
@@ -83,6 +78,7 @@ public final class WarpsCommand {
         commandManager.command(baseCommand
                 .literal("create")
                 .literal("category")
+                .argument(StringArgument.of("name"))
                 .permission("warps.command.create.category")
                 .handler(this::handleCreateCategory)
         );
@@ -104,12 +100,12 @@ public final class WarpsCommand {
         );
 
         //Command: /warps icon <warp|category>
-        commandManager.command(baseCommand
-                .literal("icon")
-                .permission("warps.command.icon")
-                .argument(new WarpCategoryArgument())
-                .handler(this::handleUpdateCategoryIcon)
-        );
+        //commandManager.command(baseCommand
+        //        .literal("icon")
+        //        .permission("warps.command.icon")
+        //        .argument(new WarpCategoryArgument())
+        //        .handler(this::handleUpdateCategoryIcon)
+        //);
 
         //Command: /warps category <warp> <category>
         commandManager.command(baseCommand
@@ -133,13 +129,13 @@ public final class WarpsCommand {
         //Command: /warps delete <category>
         //  **requires confirmation**
         // Additionally requires the category to be empty.
-        commandManager.command(baseCommand
-                .literal("delete")
-                .meta(CommandConfirmationManager.META_CONFIRMATION_REQUIRED, true)
-                .permission("warps.command.delete")
-                .argument(new WarpCategoryArgument())
-                .handler(this::handleDeleteCategory)
-        );
+        //commandManager.command(baseCommand
+        //        .literal("delete")
+        //        .meta(CommandConfirmationManager.META_CONFIRMATION_REQUIRED, true)
+        //        .permission("warps.command.delete")
+        //        .argument(new WarpCategoryArgument())
+        //        .handler(this::handleDeleteCategory)
+        //);
 
         //Command: /warps confirm
         commandManager.command(baseCommand

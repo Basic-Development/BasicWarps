@@ -5,10 +5,11 @@ import cloud.commandframework.bukkit.CloudBukkitCapabilities;
 import cloud.commandframework.execution.AsynchronousCommandExecutionCoordinator;
 import cloud.commandframework.paper.PaperCommandManager;
 import com.generalsarcasam.basicwarps.commands.WarpsCommand;
-import com.generalsarcasam.basicwarps.listeners.InventoryClickEventListener;
 import com.generalsarcasam.basicwarps.listeners.EntityDamageEventListener;
+import com.generalsarcasam.basicwarps.listeners.InventoryClickEventListener;
 import com.generalsarcasam.basicwarps.listeners.PlayerMoveEventListener;
 import com.generalsarcasam.basicwarps.objects.WarpCategory;
+import com.generalsarcasam.basicwarps.utils.DataTools;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
@@ -48,6 +49,9 @@ public final class BasicWarps extends JavaPlugin {
         //Create objects
         categories = new HashMap<>();
 
+        //Load the Saved Warps
+        DataTools.loadWarps();
+
         //Register Commands
         CommandManager<CommandSender> commandManager = this.createCommandManager();
         new WarpsCommand().register(commandManager);
@@ -57,6 +61,14 @@ public final class BasicWarps extends JavaPlugin {
         pm.registerEvents(new InventoryClickEventListener(), this);
         pm.registerEvents(new PlayerMoveEventListener(), this);
         pm.registerEvents(new EntityDamageEventListener(), this);
+    }
+
+    @Override
+    public void onDisable() {
+        super.onDisable();
+        for (WarpCategory category : categories.values()) {
+            category.save();
+        }
     }
 
     private CommandManager<CommandSender> createCommandManager() {
@@ -77,4 +89,5 @@ public final class BasicWarps extends JavaPlugin {
 
         return commandManager;
     }
+
 }
