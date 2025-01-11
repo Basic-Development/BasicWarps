@@ -107,4 +107,12 @@ public final class Messages {
     public static Component noPermissionToWarp() {
         return format("You don't have permission to perform this command!", ERROR_COLOR);
     }
+
+    public static Component categoryAlreadyExists(final String categoryName) {
+        return format("A category already exists with the name " + categoryName, ERROR_COLOR);
+    }
+
+    public static Component warpAlreadyExists(final String warpName) {
+        return format("A warp already exists with the name " + warpName, ERROR_COLOR);
+    }
 }

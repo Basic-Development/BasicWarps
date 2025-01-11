@@ -1,4 +1,4 @@
-package com.generalsarcasam.basicwarps.utils;
+package com.generalsarcasam.basicwarps.io;
 
 import com.generalsarcasam.basicwarps.BasicWarps;
 import com.generalsarcasam.basicwarps.objects.WarpCategory;
@@ -35,7 +35,7 @@ public final class DataTools {
                 //Find json files, which are probably category data files
                 if (fileName.endsWith(".json")) {
                     //Strip the last 5 characters off to remove the ".json" from the Warp Category Name
-                    String warpKey = fileName.substring(0, fileName.length() - 6);
+                    String warpKey = fileName.substring(0, fileName.length() - 5);
 
                     //Try to load it as a Warp Category data file
                     WarpCategory.load(warpKey);
@@ -52,4 +52,5 @@ public final class DataTools {
             }
         }
     }
+
 }

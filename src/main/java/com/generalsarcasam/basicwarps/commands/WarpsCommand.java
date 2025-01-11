@@ -21,7 +21,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.framework.qual.DefaultQualifier;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @DefaultQualifier(NonNull.class)
@@ -91,51 +96,51 @@ public final class WarpsCommand {
                 .handler(this::handleUpdateLocation)
         );
 
-        //Command: /warps icon <warp|category>
+        //Command: /warps warpicon <warp|category>
         commandManager.command(baseCommand
-                .literal("icon")
+                .literal("warpicon")
                 .permission("warps.command.icon")
                 .argument(new WarpArgument())
                 .handler(this::handleUpdateWarpIcon)
         );
 
-        //Command: /warps icon <warp|category>
-        //commandManager.command(baseCommand
-        //        .literal("icon")
-        //        .permission("warps.command.icon")
-        //        .argument(new WarpCategoryArgument())
-        //        .handler(this::handleUpdateCategoryIcon)
-        //);
-
-        //Command: /warps category <warp> <category>
+        //Command: /warps categoryicon <warp|category>
         commandManager.command(baseCommand
-                .literal("category")
+                .literal("categoryicon")
+                .permission("warps.command.icon")
+                .argument(new WarpCategoryArgument())
+                .handler(this::handleUpdateCategoryIcon)
+        );
+
+        //Command: /warps recategorize <warp> <newCategory>
+        commandManager.command(baseCommand
+                .literal("recategorize")
                 .permission("warps.command.category")
                 .argument(new WarpArgument())
                 .argument(new WarpCategoryArgument())
-                .handler(this::handleUpdateWarpCategory)
+                .handler(this::handleChangeWarpCategory)
         );
 
-        //Command: /warps delete <warp>
+        //Command: /warps deletewarp <warp>
         //  **requires confirmation**
         commandManager.command(baseCommand
-                .literal("delete")
+                .literal("deletewarp")
                 .meta(CommandConfirmationManager.META_CONFIRMATION_REQUIRED, true)
                 .permission("warps.command.delete")
                 .argument(new WarpArgument())
                 .handler(this::handleDeleteWarp)
         );
 
-        //Command: /warps delete <category>
+        //Command: /warps deletecategory <category>
         //  **requires confirmation**
         // Additionally requires the category to be empty.
-        //commandManager.command(baseCommand
-        //        .literal("delete")
-        //        .meta(CommandConfirmationManager.META_CONFIRMATION_REQUIRED, true)
-        //        .permission("warps.command.delete")
-        //        .argument(new WarpCategoryArgument())
-        //        .handler(this::handleDeleteCategory)
-        //);
+        commandManager.command(baseCommand
+                .literal("deletecategory")
+                .meta(CommandConfirmationManager.META_CONFIRMATION_REQUIRED, true)
+                .permission("warps.command.delete")
+                .argument(new WarpCategoryArgument())
+                .handler(this::handleDeleteCategory)
+        );
 
         //Command: /warps confirm
         commandManager.command(baseCommand
@@ -217,6 +222,16 @@ public final class WarpsCommand {
         String warpName = context.get("name");
         ItemStack defaultItem = Constants.warpIcon(warpName);
 
+        for (WarpCategory category : BasicWarps.categories.values()) {
+
+            for (Warp warp : category.warps().values()) {
+                if (warp.key().equalsIgnoreCase(warpName)) {
+                    sender.sendMessage(Messages.warpAlreadyExists(warpName));
+                    return;
+                }
+            }
+        }
+
         WarpCategory category = context.get("category");
 
         Location location = player.getLocation();
@@ -234,6 +249,13 @@ public final class WarpsCommand {
 
         String categoryName = context.get("name");
         ItemStack defaultItem = Constants.categoryIcon(categoryName);
+
+        for (WarpCategory category : BasicWarps.categories.values()) {
+            if (category.key().equalsIgnoreCase(categoryName)) {
+                sender.sendMessage(Messages.categoryAlreadyExists(categoryName));
+                return;
+            }
+        }
 
         WarpCategory category = new WarpCategory(categoryName, new HashMap<>(), defaultItem);
 
@@ -281,7 +303,7 @@ public final class WarpsCommand {
 
     }
 
-    private void handleUpdateWarpCategory(final CommandContext<CommandSender> context) {
+    private void handleChangeWarpCategory(final CommandContext<CommandSender> context) {
         CommandSender sender = context.getSender();
         Player player = (Player) sender;
 

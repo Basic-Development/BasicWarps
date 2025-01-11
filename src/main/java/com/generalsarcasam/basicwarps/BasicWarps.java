@@ -9,7 +9,7 @@ import com.generalsarcasam.basicwarps.listeners.EntityDamageEventListener;
 import com.generalsarcasam.basicwarps.listeners.InventoryClickEventListener;
 import com.generalsarcasam.basicwarps.listeners.PlayerMoveEventListener;
 import com.generalsarcasam.basicwarps.objects.WarpCategory;
-import com.generalsarcasam.basicwarps.utils.DataTools;
+import com.generalsarcasam.basicwarps.io.DataTools;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
