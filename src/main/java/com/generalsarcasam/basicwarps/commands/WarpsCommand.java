@@ -8,7 +8,6 @@ import com.generalsarcasam.basicwarps.objects.WarpCategory;
 import com.generalsarcasam.basicwarps.utils.Constants;
 import com.generalsarcasam.basicwarps.utils.Messages;
 import org.bukkit.Location;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
