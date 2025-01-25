@@ -7,6 +7,9 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.framework.qual.DefaultQualifier;
+import org.incendo.cloud.component.CommandComponent;
+import org.incendo.cloud.paper.util.sender.PlayerSource;
+import org.incendo.cloud.processors.confirmation.ConfirmationContext;
 
 import java.util.Objects;
 
@@ -17,7 +20,7 @@ import static net.kyori.adventure.text.format.TextDecoration.State.FALSE;
 @DefaultQualifier(NonNull.class)
 public final class Messages {
 
-    private static final Component PREFIX = BasicWarps.MINI.deserialize(
+    public static final Component PREFIX = BasicWarps.MINI.deserialize(
             Objects.requireNonNullElse(BasicWarps.config.getString("plugin-prefix"),
                     "<dark_gray>[</dark_gray><dark_aqua><bold>Warps</bold></dark_aqua>"
                             + "<dark_gray>]</dark_gray> ")
@@ -45,7 +48,7 @@ public final class Messages {
 
     private static Component formatAdmin(final String text,
                                          final TextColor color) {
-        return PREFIX.append(Component.text(text, color)
+        return ADMIN_PREFIX.append(Component.text(text, color)
                 .decorationIfAbsent(BOLD, FALSE)
                 .decorationIfAbsent(ITALIC, FALSE));
     }
@@ -114,5 +117,29 @@ public final class Messages {
 
     public static Component warpAlreadyExists(final String warpName) {
         return format("A warp already exists with the name " + warpName, ERROR_COLOR);
+    }
+
+    public static Component noPendingConfirmation() {
+        return format("No pending actions to confirm.", DARKER_COLOR);
+    }
+
+    public static Component confirmationRequired(final ConfirmationContext<PlayerSource> context) {
+
+        CommandComponent<PlayerSource> subcommand = context.commandContext().command().components().get(1);
+
+        switch (subcommand.name()) {
+
+            case ("deletewarp") -> {
+                return format("Deleting a warp requires confirmation! To confirm, type /basicwarps confirm",
+                        DARKER_COLOR);
+            }
+            case ("deletecategory") -> {
+                return format("Deleting a Warp Category requires confirmation! To confirm, type /basicwarps confirm",
+                        DARKER_COLOR);
+            }
+            default -> {
+                return confirmGenericAction();
+            }
+        }
     }
 }

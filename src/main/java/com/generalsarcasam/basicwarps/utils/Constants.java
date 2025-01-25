@@ -5,6 +5,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -16,6 +17,24 @@ import java.util.List;
 public final class Constants {
 
     private Constants() {
+    }
+
+    //ToDo: Develop Generic Next Page and Previous Page Items
+
+    public static ItemStack fillerItem() {
+
+        ItemStack item = new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE);
+        ItemMeta meta = item.getItemMeta();
+
+        meta.displayName(Component.text(""));
+
+        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        meta.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
+
+        item.setItemMeta(meta);
+
+        return item;
     }
 
     public static ItemStack categoryIcon(final String name) {

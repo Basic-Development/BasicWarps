@@ -1,22 +1,22 @@
 package com.generalsarcasam.basicwarps;
 
-import cloud.commandframework.CommandManager;
-import cloud.commandframework.bukkit.CloudBukkitCapabilities;
-import cloud.commandframework.execution.AsynchronousCommandExecutionCoordinator;
-import cloud.commandframework.paper.PaperCommandManager;
 import com.generalsarcasam.basicwarps.commands.WarpsCommand;
+import com.generalsarcasam.basicwarps.io.DataTools;
 import com.generalsarcasam.basicwarps.listeners.EntityDamageEventListener;
 import com.generalsarcasam.basicwarps.listeners.InventoryClickEventListener;
 import com.generalsarcasam.basicwarps.listeners.PlayerMoveEventListener;
 import com.generalsarcasam.basicwarps.objects.WarpCategory;
-import com.generalsarcasam.basicwarps.io.DataTools;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.NamespacedKey;
-import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.incendo.cloud.CommandManager;
+import org.incendo.cloud.execution.ExecutionCoordinator;
+import org.incendo.cloud.paper.PaperCommandManager;
+import org.incendo.cloud.paper.util.sender.PaperSimpleSenderMapper;
+import org.incendo.cloud.paper.util.sender.Source;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -53,8 +53,11 @@ public final class BasicWarps extends JavaPlugin {
         DataTools.loadWarps();
 
         //Register Commands
-        CommandManager<CommandSender> commandManager = this.createCommandManager();
-        new WarpsCommand().register(commandManager);
+        CommandManager<Source> manager = PaperCommandManager.builder(PaperSimpleSenderMapper.simpleSenderMapper())
+                .executionCoordinator(ExecutionCoordinator.asyncCoordinator())
+                .buildOnEnable(this);
+
+        new WarpsCommand().register(manager);
 
         //Register Listeners
         PluginManager pm = this.getServer().getPluginManager();
@@ -69,25 +72,6 @@ public final class BasicWarps extends JavaPlugin {
         for (WarpCategory category : categories.values()) {
             category.save();
         }
-    }
-
-    private CommandManager<CommandSender> createCommandManager() {
-        PaperCommandManager<CommandSender> commandManager;
-
-        try {
-            commandManager = PaperCommandManager.createNative(
-                    this,
-                    AsynchronousCommandExecutionCoordinator.<CommandSender>builder().withAsynchronousParsing().build()
-            );
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        if (commandManager.hasCapability(CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION)) {
-            commandManager.registerAsynchronousCompletions();
-        }
-
-        return commandManager;
     }
 
 }

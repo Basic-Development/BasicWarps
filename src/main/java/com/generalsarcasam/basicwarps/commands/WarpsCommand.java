@@ -1,13 +1,8 @@
 package com.generalsarcasam.basicwarps.commands;
 
-import cloud.commandframework.Command;
-import cloud.commandframework.CommandManager;
-import cloud.commandframework.arguments.standard.StringArgument;
-import cloud.commandframework.context.CommandContext;
-import cloud.commandframework.extra.confirmation.CommandConfirmationManager;
 import com.generalsarcasam.basicwarps.BasicWarps;
-import com.generalsarcasam.basicwarps.cloud.WarpArgument;
-import com.generalsarcasam.basicwarps.cloud.WarpCategoryArgument;
+import com.generalsarcasam.basicwarps.cloud.arguments.WarpArgument;
+import com.generalsarcasam.basicwarps.cloud.arguments.WarpCategoryArgument;
 import com.generalsarcasam.basicwarps.objects.Warp;
 import com.generalsarcasam.basicwarps.objects.WarpCategory;
 import com.generalsarcasam.basicwarps.utils.Constants;
@@ -20,27 +15,46 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.framework.qual.DefaultQualifier;
+import org.incendo.cloud.Command;
+import org.incendo.cloud.CommandManager;
+import org.incendo.cloud.context.CommandContext;
+import org.incendo.cloud.key.CloudKey;
+import org.incendo.cloud.paper.util.sender.PlayerSource;
+import org.incendo.cloud.paper.util.sender.Source;
+import org.incendo.cloud.parser.standard.StringParser;
+import org.incendo.cloud.processors.cache.SimpleCache;
+import org.incendo.cloud.processors.confirmation.ConfirmationContext;
+import org.incendo.cloud.processors.confirmation.ConfirmationManager;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
+
+import static org.incendo.cloud.processors.confirmation.ConfirmationManager.confirmationManager;
+
 
 @DefaultQualifier(NonNull.class)
 public final class WarpsCommand {
 
-    public static final CommandConfirmationManager<CommandSender> CONFIRMATION_MANAGER = new CommandConfirmationManager<>(
-            10L,
-            TimeUnit.SECONDS,
-            context -> context.getCommandContext().getSender().sendMessage(Messages.confirmGenericAction()),
-            sender -> sender.sendMessage("You don't have any pending commands")
-    );
-
+    private static final CloudKey<Player> PLAYER_KEY = CloudKey.of("player", Player.class);
+    private static final CloudKey<Warp> WARP_KEY = CloudKey.of("warp", Warp.class);
+    private static final CloudKey<WarpCategory> CATEGORY_KEY = CloudKey.of("category", WarpCategory.class);
     @Nullable
     public static List<UUID> warpingPlayers;
+    private final ConfirmationManager<PlayerSource> confirmationManager = confirmationManager(builder ->
+            builder.cache(SimpleCache.<Object, ConfirmationContext<PlayerSource>>of().keyExtractingView(source -> {
+                        return source.source().getUniqueId();
+                    }))
+                    .noPendingCommandNotifier(sender ->
+                            sender.source().sendMessage(Messages.noPendingConfirmation()))
+                    .confirmationRequiredNotifier((sender, ctx) ->
+                            sender.source().sendMessage(Messages.confirmationRequired(ctx)))
+                    .expiration(Duration.ofSeconds(10))
+    );
 
     public WarpsCommand() {
         if (warpingPlayers == null) {
@@ -56,17 +70,22 @@ public final class WarpsCommand {
         WarpsCommand.warpingPlayers = warpingPlayers;
     }
 
-    public void register(final CommandManager<CommandSender> commandManager) {
+    public void register(final CommandManager<Source> commandManager) {
 
-        Command.Builder<CommandSender> baseCommand = commandManager
-                .commandBuilder("basicwarps", "warps", "bw")
-                .senderType(Player.class)
+        Command.Builder<PlayerSource> baseCommand = commandManager
+                .commandBuilder("basicwarps", "warps", "warp", "bw")
+                .senderType(PlayerSource.class)
                 .permission("warps.command");
 
-        //Command: /warp <warp>
+        //Command: /warps
+        commandManager.command(baseCommand
+                .permission("warps.command.gui")
+                .handler(this::handleOpenWarpsGUI));
+
+        //Command: /warps <warp>
         commandManager.command(baseCommand
                 .permission("warps.command.warp")
-                .argument(new WarpArgument())
+                .required("warp", new WarpArgument())
                 .handler(this::handleWarp));
 
         //Command: /warps create warp <category> <name>
@@ -74,8 +93,8 @@ public final class WarpsCommand {
                 .literal("create")
                 .literal("warp")
                 .permission("warps.command.create.warp")
-                .argument(new WarpCategoryArgument())
-                .argument(StringArgument.of("name"))
+                .required("category", new WarpCategoryArgument())
+                .required("name", StringParser.stringParser())
                 .handler(this::handleCreateWarp)
         );
 
@@ -83,7 +102,7 @@ public final class WarpsCommand {
         commandManager.command(baseCommand
                 .literal("create")
                 .literal("category")
-                .argument(StringArgument.of("name"))
+                .required("name", StringParser.stringParser())
                 .permission("warps.command.create.category")
                 .handler(this::handleCreateCategory)
         );
@@ -92,7 +111,7 @@ public final class WarpsCommand {
         commandManager.command(baseCommand
                 .literal("location")
                 .permission("warps.command.location")
-                .argument(new WarpArgument())
+                .required("warp", new WarpArgument())
                 .handler(this::handleUpdateLocation)
         );
 
@@ -100,7 +119,7 @@ public final class WarpsCommand {
         commandManager.command(baseCommand
                 .literal("warpicon")
                 .permission("warps.command.icon")
-                .argument(new WarpArgument())
+                .required("warp", new WarpArgument())
                 .handler(this::handleUpdateWarpIcon)
         );
 
@@ -108,7 +127,7 @@ public final class WarpsCommand {
         commandManager.command(baseCommand
                 .literal("categoryicon")
                 .permission("warps.command.icon")
-                .argument(new WarpCategoryArgument())
+                .required("category", new WarpCategoryArgument())
                 .handler(this::handleUpdateCategoryIcon)
         );
 
@@ -116,8 +135,8 @@ public final class WarpsCommand {
         commandManager.command(baseCommand
                 .literal("recategorize")
                 .permission("warps.command.category")
-                .argument(new WarpArgument())
-                .argument(new WarpCategoryArgument())
+                .required("warp", new WarpArgument())
+                .required("category", new WarpCategoryArgument())
                 .handler(this::handleChangeWarpCategory)
         );
 
@@ -125,9 +144,9 @@ public final class WarpsCommand {
         //  **requires confirmation**
         commandManager.command(baseCommand
                 .literal("deletewarp")
-                .meta(CommandConfirmationManager.META_CONFIRMATION_REQUIRED, true)
+                .meta(ConfirmationManager.META_CONFIRMATION_REQUIRED, true)
                 .permission("warps.command.delete")
-                .argument(new WarpArgument())
+                .required("warp", new WarpArgument())
                 .handler(this::handleDeleteWarp)
         );
 
@@ -136,9 +155,9 @@ public final class WarpsCommand {
         // Additionally requires the category to be empty.
         commandManager.command(baseCommand
                 .literal("deletecategory")
-                .meta(CommandConfirmationManager.META_CONFIRMATION_REQUIRED, true)
+                .meta(ConfirmationManager.META_CONFIRMATION_REQUIRED, true)
                 .permission("warps.command.delete")
-                .argument(new WarpCategoryArgument())
+                .required("category", new WarpCategoryArgument())
                 .handler(this::handleDeleteCategory)
         );
 
@@ -146,15 +165,14 @@ public final class WarpsCommand {
         commandManager.command(baseCommand
                 .literal("confirm")
                 .permission("warps.command.confirm")
-                .handler(CONFIRMATION_MANAGER.createConfirmationExecutionHandler())
+                .handler(this.confirmationManager.createExecutionHandler())
         );
 
     }
 
-    private void handleWarp(final CommandContext<CommandSender> context) {
+    private void handleWarp(final CommandContext<PlayerSource> context) {
 
-        CommandSender sender = context.getSender();
-        Player player = (Player) sender;
+        Player player = context.get(PLAYER_KEY);
         UUID uuid = player.getUniqueId();
 
         Warp warp = context.get("warp");
@@ -211,22 +229,26 @@ public final class WarpsCommand {
         runnable.runTaskLater(BasicWarps.plugin, 5 * 20);
     }
 
-    private void handleOpenWarpsGUI(final CommandContext<CommandSender> context) {
+    private void handleOpenWarpsGUI(final CommandContext<PlayerSource> context) {
+        Player player = context.get(PLAYER_KEY);
+
+
+
     }
 
-    private void handleCreateWarp(final CommandContext<CommandSender> context) {
+    private void handleCreateWarp(final CommandContext<PlayerSource> context) {
 
-        CommandSender sender = context.getSender();
-        Player player = (Player) sender;
+        Player player = context.get(PLAYER_KEY);
 
         String warpName = context.get("name");
+
         ItemStack defaultItem = Constants.warpIcon(warpName);
 
         for (WarpCategory category : BasicWarps.categories.values()) {
 
             for (Warp warp : category.warps().values()) {
                 if (warp.key().equalsIgnoreCase(warpName)) {
-                    sender.sendMessage(Messages.warpAlreadyExists(warpName));
+                    player.sendMessage(Messages.warpAlreadyExists(warpName));
                     return;
                 }
             }
@@ -242,17 +264,17 @@ public final class WarpsCommand {
 
     }
 
-    private void handleCreateCategory(final CommandContext<CommandSender> context) {
+    private void handleCreateCategory(final CommandContext<PlayerSource> context) {
 
-        CommandSender sender = context.getSender();
-        Player player = (Player) sender;
+        Player player = context.get(PLAYER_KEY);
 
         String categoryName = context.get("name");
+
         ItemStack defaultItem = Constants.categoryIcon(categoryName);
 
         for (WarpCategory category : BasicWarps.categories.values()) {
             if (category.key().equalsIgnoreCase(categoryName)) {
-                sender.sendMessage(Messages.categoryAlreadyExists(categoryName));
+                player.sendMessage(Messages.categoryAlreadyExists(categoryName));
                 return;
             }
         }
@@ -263,11 +285,10 @@ public final class WarpsCommand {
 
     }
 
-    private void handleUpdateLocation(final CommandContext<CommandSender> context) {
-        CommandSender sender = context.getSender();
-        Player player = (Player) sender;
+    private void handleUpdateLocation(final CommandContext<PlayerSource> context) {
+        Player player = context.get(PLAYER_KEY);
 
-        Warp warp = context.get("warp");
+        Warp warp = context.get(WARP_KEY);
 
         warp.location(player.getLocation());
 
@@ -275,11 +296,10 @@ public final class WarpsCommand {
 
     }
 
-    private void handleUpdateWarpIcon(final CommandContext<CommandSender> context) {
-        CommandSender sender = context.getSender();
-        Player player = (Player) sender;
+    private void handleUpdateWarpIcon(final CommandContext<PlayerSource> context) {
+        Player player = context.get(PLAYER_KEY);
 
-        Warp warp = context.get("warp");
+        Warp warp = context.get(WARP_KEY);
 
         ItemStack item = player.getInventory().getItemInMainHand();
 
@@ -289,11 +309,10 @@ public final class WarpsCommand {
 
     }
 
-    private void handleUpdateCategoryIcon(final CommandContext<CommandSender> context) {
-        CommandSender sender = context.getSender();
-        Player player = (Player) sender;
+    private void handleUpdateCategoryIcon(final CommandContext<PlayerSource> context) {
+        Player player = context.get(PLAYER_KEY);
 
-        WarpCategory category = context.get("category");
+        WarpCategory category = context.get(CATEGORY_KEY);
 
         ItemStack item = player.getInventory().getItemInMainHand();
 
@@ -303,13 +322,12 @@ public final class WarpsCommand {
 
     }
 
-    private void handleChangeWarpCategory(final CommandContext<CommandSender> context) {
-        CommandSender sender = context.getSender();
-        Player player = (Player) sender;
+    private void handleChangeWarpCategory(final CommandContext<PlayerSource> context) {
+        Player player = context.get(PLAYER_KEY);
 
-        Warp warp = context.get("warp");
+        Warp warp = context.get(WARP_KEY);
 
-        WarpCategory newCategory = context.get("category");
+        WarpCategory newCategory = context.get(CATEGORY_KEY);
 
         warp.category(newCategory);
 
@@ -317,11 +335,10 @@ public final class WarpsCommand {
 
     }
 
-    private void handleDeleteWarp(final CommandContext<CommandSender> context) {
-        CommandSender sender = context.getSender();
-        Player player = (Player) sender;
+    private void handleDeleteWarp(final CommandContext<PlayerSource> context) {
+        Player player = context.get(PLAYER_KEY);
 
-        Warp warp = context.get("warp");
+        Warp warp = context.get(WARP_KEY);
 
         WarpCategory category = warp.category();
         Map<String, Warp> warps = category.warps();
@@ -332,11 +349,10 @@ public final class WarpsCommand {
 
     }
 
-    private void handleDeleteCategory(final CommandContext<CommandSender> context) {
-        CommandSender sender = context.getSender();
-        Player player = (Player) sender;
+    private void handleDeleteCategory(final CommandContext<PlayerSource> context) {
+        Player player = context.get(PLAYER_KEY);
 
-        WarpCategory category = context.get("category");
+        WarpCategory category = context.get(CATEGORY_KEY);
         Map<String, Warp> warps = category.warps();
 
         if (!warps.isEmpty()) {
