@@ -3,6 +3,7 @@ package com.generalsarcasam.basicwarps.commands;
 import com.generalsarcasam.basicwarps.BasicWarps;
 import com.generalsarcasam.basicwarps.cloud.arguments.WarpArgument;
 import com.generalsarcasam.basicwarps.cloud.arguments.WarpCategoryArgument;
+import com.generalsarcasam.basicwarps.interfaces.WarpsMainMenu;
 import com.generalsarcasam.basicwarps.objects.Warp;
 import com.generalsarcasam.basicwarps.objects.WarpCategory;
 import com.generalsarcasam.basicwarps.utils.Constants;
@@ -26,12 +27,7 @@ import org.incendo.cloud.processors.confirmation.ConfirmationContext;
 import org.incendo.cloud.processors.confirmation.ConfirmationManager;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 import static org.incendo.cloud.processors.confirmation.ConfirmationManager.confirmationManager;
 
@@ -42,6 +38,7 @@ public final class WarpsCommand {
     private static final CloudKey<Player> PLAYER_KEY = CloudKey.of("player", Player.class);
     private static final CloudKey<Warp> WARP_KEY = CloudKey.of("warp", Warp.class);
     private static final CloudKey<WarpCategory> CATEGORY_KEY = CloudKey.of("category", WarpCategory.class);
+
     @Nullable
     public static List<UUID> warpingPlayers;
     private final ConfirmationManager<PlayerSource> confirmationManager = confirmationManager(builder ->
@@ -171,10 +168,10 @@ public final class WarpsCommand {
 
     private void handleWarp(final CommandContext<PlayerSource> context) {
 
-        Player player = context.get(PLAYER_KEY);
+        Player player = context.sender().source();
         UUID uuid = player.getUniqueId();
 
-        Warp warp = context.get("warp");
+        Warp warp = context.get(WARP_KEY);
 
         String permission = "warps.teleport." + warp.key();
         if (!player.hasPermission(permission)) {
@@ -187,9 +184,9 @@ public final class WarpsCommand {
         double y = initialLocation.getY();
         double z = initialLocation.getZ();
 
-        boolean hasTimerBypass = player.hasPermission("warps.timer.bypass");
+        boolean playerHasBypassPermission = player.hasPermission("warps.timer.bypass");
 
-        if (hasTimerBypass) {
+        if (playerHasBypassPermission) {
             //Get back on main thread to teleport player instantly
             BukkitRunnable runnable = new BukkitRunnable() {
                 @Override
@@ -225,35 +222,45 @@ public final class WarpsCommand {
             }
         };
 
+        //ToDo: Sort out caching of players and their locations while they're warping to prevent them from
+        // moving before they warp
+
         runnable.runTaskLater(BasicWarps.plugin, 5 * 20);
     }
 
     private void handleOpenWarpsGUI(final CommandContext<PlayerSource> context) {
-        Player player = context.get(PLAYER_KEY);
+        Player player = context.sender().source();
 
-
+        //Get back on the main thread to open an inventory for the player
+        BukkitRunnable runnable = new BukkitRunnable() {
+            @Override
+            public void run() {
+                player.openInventory(new WarpsMainMenu().getInventory());
+            }
+        };
+        runnable.runTask(BasicWarps.plugin);
 
     }
 
     private void handleCreateWarp(final CommandContext<PlayerSource> context) {
 
-        Player player = context.get(PLAYER_KEY);
-
+        Player player = context.sender().source();
         String warpName = context.get("name");
+        WarpCategory category = context.get("category");
 
-        ItemStack defaultItem = Constants.warpIcon(warpName);
+        ItemStack defaultItem = Constants.warpIcon(warpName, category.key());
 
-        for (WarpCategory category : BasicWarps.categories.values()) {
+        //Check ALL categories for a warp with the same key
+        for (WarpCategory c : BasicWarps.categories.values()) {
 
-            for (Warp warp : category.warps().values()) {
+            for (Warp warp : c.warps().values()) {
                 if (warp.key().equalsIgnoreCase(warpName)) {
+                    //Reject any duplicate warp keys
                     player.sendMessage(Messages.warpAlreadyExists(warpName));
                     return;
                 }
             }
         }
-
-        WarpCategory category = context.get("category");
 
         Location location = player.getLocation();
 
@@ -265,7 +272,7 @@ public final class WarpsCommand {
 
     private void handleCreateCategory(final CommandContext<PlayerSource> context) {
 
-        Player player = context.get(PLAYER_KEY);
+        Player player = context.sender().source();
 
         String categoryName = context.get("name");
 
@@ -285,7 +292,7 @@ public final class WarpsCommand {
     }
 
     private void handleUpdateLocation(final CommandContext<PlayerSource> context) {
-        Player player = context.get(PLAYER_KEY);
+        Player player = context.sender().source();
 
         Warp warp = context.get(WARP_KEY);
 
@@ -296,7 +303,7 @@ public final class WarpsCommand {
     }
 
     private void handleUpdateWarpIcon(final CommandContext<PlayerSource> context) {
-        Player player = context.get(PLAYER_KEY);
+        Player player = context.sender().source();
 
         Warp warp = context.get(WARP_KEY);
 
@@ -309,7 +316,7 @@ public final class WarpsCommand {
     }
 
     private void handleUpdateCategoryIcon(final CommandContext<PlayerSource> context) {
-        Player player = context.get(PLAYER_KEY);
+        Player player = context.sender().source();
 
         WarpCategory category = context.get(CATEGORY_KEY);
 
@@ -322,7 +329,7 @@ public final class WarpsCommand {
     }
 
     private void handleChangeWarpCategory(final CommandContext<PlayerSource> context) {
-        Player player = context.get(PLAYER_KEY);
+        Player player = context.sender().source();
 
         Warp warp = context.get(WARP_KEY);
 
@@ -335,7 +342,7 @@ public final class WarpsCommand {
     }
 
     private void handleDeleteWarp(final CommandContext<PlayerSource> context) {
-        Player player = context.get(PLAYER_KEY);
+        Player player = context.sender().source();
 
         Warp warp = context.get(WARP_KEY);
 
@@ -349,7 +356,7 @@ public final class WarpsCommand {
     }
 
     private void handleDeleteCategory(final CommandContext<PlayerSource> context) {
-        Player player = context.get(PLAYER_KEY);
+        Player player = context.sender().source();
 
         WarpCategory category = context.get(CATEGORY_KEY);
         Map<String, Warp> warps = category.warps();

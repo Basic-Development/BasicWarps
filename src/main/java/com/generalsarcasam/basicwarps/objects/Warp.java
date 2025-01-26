@@ -1,7 +1,11 @@
 package com.generalsarcasam.basicwarps.objects;
 
+import com.generalsarcasam.basicwarps.BasicWarps;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.framework.qual.DefaultQualifier;
 
@@ -52,7 +56,18 @@ public final class Warp {
     }
 
     public void warpIcon(final ItemStack warpIcon) {
-        this.warpIcon = warpIcon;
+        //Update the Icon, but ensure it's Tagged with the Warp Information
+        ItemStack tagged = warpIcon.clone();
+        ItemMeta meta = tagged.getItemMeta();
+        PersistentDataContainer pdc = meta.getPersistentDataContainer();
+
+        pdc.set(BasicWarps.warpCategoryKey, PersistentDataType.STRING, this.category.key());
+        pdc.set(BasicWarps.warpNameKey, PersistentDataType.STRING, this.key());
+
+        tagged.setItemMeta(meta);
+
+
+        this.warpIcon = tagged;
     }
 
     public void location(final Location location) {

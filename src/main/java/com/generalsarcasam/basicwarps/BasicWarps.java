@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+
 public final class BasicWarps extends JavaPlugin {
 
     public static final MiniMessage MINI = MiniMessage.miniMessage();
@@ -34,6 +35,8 @@ public final class BasicWarps extends JavaPlugin {
     public static Map<String, WarpCategory> categories;
     public static Plugin plugin;
 
+    public static int teleportDelay;
+
     @Override
     public void onEnable() {
         saveDefaultConfig();
@@ -41,6 +44,16 @@ public final class BasicWarps extends JavaPlugin {
 
         plugin = this;
         logger = this.getLogger();
+
+        teleportDelay = BasicWarps.config.getInt("teleport-delay");
+        if (teleportDelay == 0) {
+            logger.warning("Overwrote Teleport Delay of 0 to Default Value (5 Seconds). To bypass the warps"
+                    + "delay, assign the permission warps.timer.bypass to the player or permission group you"
+                    + "want to allow to skip the timer!");
+            teleportDelay = 5;
+        }
+
+        PlayerMoveEventListener.playerLocationMap = new HashMap<>();
 
         //Create namespace key for Warp & Category items
         warpNameKey = NamespacedKey.fromString("basic_warps_name", this);

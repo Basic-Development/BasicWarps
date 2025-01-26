@@ -9,7 +9,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -19,9 +18,6 @@ public final class PlayerMoveEventListener implements Listener {
     public static Map<UUID, Location> playerLocationMap;
 
     public PlayerMoveEventListener() {
-        if (playerLocationMap == null) {
-            playerLocationMap = new HashMap<>();
-        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

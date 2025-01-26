@@ -1,14 +1,14 @@
 package com.generalsarcasam.basicwarps.interfaces;
 
-import com.generalsarcasam.basicwarps.utils.Messages;
-import org.bukkit.Bukkit;
+import com.generalsarcasam.basicwarps.BasicWarps;
+import com.generalsarcasam.basicwarps.objects.WarpCategory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.framework.qual.DefaultQualifier;
 import org.jetbrains.annotations.NotNull;
 
-import static com.generalsarcasam.basicwarps.utils.Constants.fillerItem;
+import static com.generalsarcasam.basicwarps.utils.Constants.baseMenu;
 
 @DefaultQualifier(NonNull.class)
 public final class WarpsMainMenu implements InventoryHolder {
@@ -18,15 +18,29 @@ public final class WarpsMainMenu implements InventoryHolder {
     public WarpsMainMenu() {
 
         int inventorySize = 54;
+        Inventory gui = baseMenu(inventorySize, this);
 
-        Inventory gui = Bukkit.createInventory(this, inventorySize, Messages.PREFIX);
+        //Determine how many Warp Categories we have. If there's more than 36 Categories,
+        // we'll want to have a Page feature.
+        int numCategories = BasicWarps.categories.size();
 
-        //Fill the GUI with the Filler Item
-        for (int i = 0; i < inventorySize; i++) {
-            gui.setItem(i, fillerItem());
-        }
+        int numPages = (int) Math.ceil(numCategories / 36.0);
+        int guiItemIndex = 9;
 
-        //ToDo: Add Warp Category Icons to the Menu
+        if (numPages == 1) {
+
+            for (WarpCategory category : BasicWarps.categories.values()) {
+                gui.setItem(guiItemIndex, category.icon());
+                guiItemIndex++;
+            }
+
+        } //else {
+
+        //ToDo: Set Bottom Left Menu Slot to Prev Page Button
+        //ToDo: Set Bottom Right Menu Slot to Next Page Button
+        //ToDo: Determine Logic to Extract Categories #36 -> 71, etc...
+
+        //}
 
         //Finalize the GUI initialization
         this.menu = gui;
@@ -37,4 +51,5 @@ public final class WarpsMainMenu implements InventoryHolder {
     public @NotNull Inventory getInventory() {
         return this.menu;
     }
+
 }

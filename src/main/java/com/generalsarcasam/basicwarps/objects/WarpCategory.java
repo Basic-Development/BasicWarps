@@ -6,6 +6,9 @@ import com.google.gson.reflect.TypeToken;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.framework.qual.DefaultQualifier;
 
@@ -104,7 +107,15 @@ public final class WarpCategory {
     }
 
     public void icon(final ItemStack icon) {
-        this.icon = icon;
+        ItemStack tagged = icon.clone();
+        ItemMeta meta = tagged.getItemMeta();
+        PersistentDataContainer pdc = meta.getPersistentDataContainer();
+
+        pdc.set(BasicWarps.warpCategoryKey, PersistentDataType.STRING, this.key());
+
+        tagged.setItemMeta(meta);
+
+        this.icon = tagged;
         this.save();
     }
 

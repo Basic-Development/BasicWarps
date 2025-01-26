@@ -10,6 +10,7 @@ import org.checkerframework.framework.qual.DefaultQualifier;
 import org.incendo.cloud.component.CommandComponent;
 import org.incendo.cloud.paper.util.sender.PlayerSource;
 import org.incendo.cloud.processors.confirmation.ConfirmationContext;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -107,6 +108,11 @@ public final class Messages {
         return format("Warped to " + warp.key(), MESSAGE_COLOR);
     }
 
+    public static @NotNull Component teleportInitiated(final Warp warp) {
+        return format("Warping to " + warp.key() + "! Please wait for "
+                + BasicWarps.teleportDelay + " seconds, and don't move!", DARKER_COLOR);
+    }
+
     public static Component noPermissionToWarp() {
         return format("You don't have permission to perform this command!", ERROR_COLOR);
     }
@@ -141,5 +147,15 @@ public final class Messages {
                 return confirmGenericAction();
             }
         }
+    }
+
+    public static Component invalidWarpCategory(final String categoryName) {
+        return format("Something odd happened. Failed to get a Category with the name "
+                + categoryName + "! Please notify an admin.", ERROR_COLOR);
+    }
+
+    public static Component invalidWarp(final String warpName) {
+        return format("Something odd happened. Failed to get a Warp with the name "
+                + warpName + "! Please notify an admin.", ERROR_COLOR);
     }
 }
