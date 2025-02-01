@@ -26,9 +26,13 @@ import org.incendo.cloud.processors.cache.SimpleCache;
 import org.incendo.cloud.processors.confirmation.ConfirmationContext;
 import org.incendo.cloud.processors.confirmation.ConfirmationManager;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.*;
 
+import static com.generalsarcasam.basicwarps.listeners.PlayerMoveEventListener.playerLocationMap;
 import static org.incendo.cloud.processors.confirmation.ConfirmationManager.confirmationManager;
 
 
@@ -179,11 +183,7 @@ public final class WarpsCommand {
             return;
         }
 
-        Location initialLocation = player.getLocation();
-        double x = initialLocation.getX();
-        double y = initialLocation.getY();
-        double z = initialLocation.getZ();
-
+        //Handle Players with Teleport Timer Bypass First
         boolean playerHasBypassPermission = player.hasPermission("warps.timer.bypass");
 
         if (playerHasBypassPermission) {
@@ -199,11 +199,19 @@ public final class WarpsCommand {
             return;
         }
 
+        //Player did not have teleport bypass permission.
+
+        //Add them to the Warping Player Cache
         List<UUID> warpingPlayerList = WarpsCommand.getWarpingPlayers();
         warpingPlayerList.add(uuid);
         WarpsCommand.setWarpingPlayers(warpingPlayerList);
 
+        //Add their Location to the Move Event Listener Cache
+        playerLocationMap.put(player.getUniqueId(), player.getLocation());
+
         //Get back on main thread to teleport player after 5s delay
+        player.sendMessage(Messages.teleportInitiated(warp));
+
         BukkitRunnable runnable = new BukkitRunnable() {
             @Override
             public void run() {
@@ -218,12 +226,10 @@ public final class WarpsCommand {
                 //They warped, so remove them from the waiting-to-warp list
                 warpList.remove(uuid);
                 WarpsCommand.setWarpingPlayers(warpList);
+                playerLocationMap.remove(player.getUniqueId());
 
             }
         };
-
-        //ToDo: Sort out caching of players and their locations while they're warping to prevent them from
-        // moving before they warp
 
         runnable.runTaskLater(BasicWarps.plugin, 5 * 20);
     }
@@ -367,7 +373,19 @@ public final class WarpsCommand {
         }
 
         BasicWarps.categories.remove(category.key());
-        //todo: remove the file
+
+        //Path to the file in the Categories Folder of the BasicWarps plugin folder
+        Path target = BasicWarps.plugin.getDataFolder().toPath()
+                .resolve("categories/" + category.key() + ".json");
+
+        //Delete the json file for the warp category
+        try {
+            Files.deleteIfExists(target);
+        } catch (IOException e) {
+            // shouldn't happen
+            BasicWarps.logger.warning("Failed to Delete " + category.key() + ".json file");
+            throw new RuntimeException(e);
+        }
 
         player.sendMessage(Messages.deletedCategory(category));
 

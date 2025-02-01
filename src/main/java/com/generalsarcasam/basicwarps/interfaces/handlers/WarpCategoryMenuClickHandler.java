@@ -75,7 +75,6 @@ public final class WarpCategoryMenuClickHandler {
         BasicWarps.plugin.getServer().dispatchCommand(
                 player, "basicwarps:warps  " + warp.key()
         );
-        player.sendMessage(Messages.teleportInitiated(warp));
 
     }
 
