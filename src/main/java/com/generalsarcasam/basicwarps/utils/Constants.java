@@ -1,7 +1,6 @@
 package com.generalsarcasam.basicwarps.utils;
 
 import com.generalsarcasam.basicwarps.BasicWarps;
-import com.generalsarcasam.basicwarps.interfaces.WarpCategoryMenu;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -20,14 +19,16 @@ import java.util.List;
 
 public final class Constants {
 
+    public static final ItemStack FILLER_ITEM = fillerItem();
+    public static final ItemStack CLOSE_MENU_ITEM = closeMenuItem();
+    public static final ItemStack NEXT_PAGE_ITEM = nextPageItem();
+    public static final ItemStack PREVIOUS_PAGE_ITEM = previousPageItem();
     private Constants() {
     }
 
-    //ToDo: Develop Generic Next Page and Previous Page Items
-
     public static Inventory baseMenu(final int inventorySize,
                                      final InventoryHolder holder) {
-                return baseMenu(inventorySize, holder, Messages.PREFIX);
+        return baseMenu(inventorySize, holder, Messages.PREFIX);
     }
 
     public static Inventory baseMenu(final int inventorySize,
@@ -55,14 +56,44 @@ public final class Constants {
         return gui;
     }
 
-    public static ItemStack fillerItem() {
+    private static ItemStack fillerItem() {
 
         return menuItem(Material.LIGHT_GRAY_STAINED_GLASS_PANE,
                 Component.text(""),
                 new ArrayList<>());
     }
 
-    public static ItemStack closeMenuItem() {
+    private static ItemStack nextPageItem() {
+        ItemStack item = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
+        ItemMeta meta = item.getItemMeta();
+
+        //Set the Display Name to "Next Page"
+        meta.displayName(
+                Component.text("Next Page", NamedTextColor.GREEN)
+                        .decoration(TextDecoration.BOLD, true)
+                        .decoration(TextDecoration.ITALIC, false)
+        );
+
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    private static ItemStack previousPageItem() {
+        ItemStack item = new ItemStack(Material.YELLOW_STAINED_GLASS_PANE);
+        ItemMeta meta = item.getItemMeta();
+
+        //Set the Display Name to "Previous Page"
+        meta.displayName(
+                Component.text("Previous Page", NamedTextColor.YELLOW)
+                        .decoration(TextDecoration.BOLD, true)
+                        .decoration(TextDecoration.ITALIC, false)
+        );
+
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    private static ItemStack closeMenuItem() {
 
         return menuItem(Material.BLACK_STAINED_GLASS_PANE,
                 Component.text("Close Menu", NamedTextColor.DARK_RED)

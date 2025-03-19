@@ -241,7 +241,7 @@ public final class WarpsCommand {
         BukkitRunnable runnable = new BukkitRunnable() {
             @Override
             public void run() {
-                player.openInventory(new WarpsMainMenu().getInventory());
+                player.openInventory(new WarpsMainMenu(1).getInventory());
             }
         };
         runnable.runTask(BasicWarps.plugin);

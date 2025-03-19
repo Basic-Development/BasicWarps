@@ -1,6 +1,7 @@
 package com.generalsarcasam.basicwarps.interfaces.handlers;
 
 import com.generalsarcasam.basicwarps.BasicWarps;
+import com.generalsarcasam.basicwarps.interfaces.WarpCategoryMenu;
 import com.generalsarcasam.basicwarps.objects.Warp;
 import com.generalsarcasam.basicwarps.objects.WarpCategory;
 import com.generalsarcasam.basicwarps.utils.Messages;
@@ -12,10 +13,8 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.framework.qual.DefaultQualifier;
-import org.jetbrains.annotations.Nullable;
 
-import static com.generalsarcasam.basicwarps.utils.Constants.closeMenuItem;
-import static com.generalsarcasam.basicwarps.utils.Constants.fillerItem;
+import static com.generalsarcasam.basicwarps.utils.Constants.*;
 
 @DefaultQualifier(NonNull.class)
 public final class WarpCategoryMenuClickHandler {
@@ -23,18 +22,35 @@ public final class WarpCategoryMenuClickHandler {
     private WarpCategoryMenuClickHandler() {
     }
 
-    public static void handleClick(final Player player,
-                                   final ItemStack itemClicked) {
+    public static void handleClick(final WarpCategory category,
+                                   final Player player,
+                                   final ItemStack itemClicked,
+                                   final int pageNumber) {
 
-        if (itemClicked.equals(fillerItem())) {
+        if (itemClicked.equals(FILLER_ITEM)) {
             return;
         }
 
-        if (itemClicked.equals(closeMenuItem())) {
+        if (itemClicked.equals(CLOSE_MENU_ITEM)) {
             player.closeInventory(InventoryCloseEvent.Reason.PLUGIN);
+            return;
         }
 
-        //ToDo: Handle Next Page and Previous Page Items
+        if (itemClicked.equals(NEXT_PAGE_ITEM)) {
+            player.closeInventory(InventoryCloseEvent.Reason.OPEN_NEW);
+            player.openInventory(
+                    new WarpCategoryMenu(category, pageNumber + 1).getInventory()
+            );
+            return;
+        }
+
+        if (itemClicked.equals(PREVIOUS_PAGE_ITEM)) {
+            player.closeInventory(InventoryCloseEvent.Reason.OPEN_NEW);
+            player.openInventory(
+                    new WarpCategoryMenu(category, pageNumber - 1).getInventory()
+            );
+            return;
+        }
 
         //The only other items in the GUI are Warp Icons
         ItemMeta meta = itemClicked.getItemMeta();
@@ -43,20 +59,6 @@ public final class WarpCategoryMenuClickHandler {
         //Get the Name of the Warp Category
         String categoryName = pdc.getOrDefault(BasicWarps.warpCategoryKey, PersistentDataType.STRING, "none");
         if (categoryName.equalsIgnoreCase("none")) {
-            player.closeInventory(InventoryCloseEvent.Reason.PLUGIN);
-            player.sendMessage(Messages.invalidWarpCategory(categoryName));
-            return;
-        }
-
-        //Get the Warp Category
-        @Nullable WarpCategory category = null;
-        for (WarpCategory cat : BasicWarps.categories.values()) {
-            if (cat.key().equalsIgnoreCase(categoryName)) {
-                category = cat;
-                break;
-            }
-        }
-        if (category == null) {
             player.closeInventory(InventoryCloseEvent.Reason.PLUGIN);
             player.sendMessage(Messages.invalidWarpCategory(categoryName));
             return;

@@ -4,6 +4,7 @@ import com.generalsarcasam.basicwarps.interfaces.WarpCategoryMenu;
 import com.generalsarcasam.basicwarps.interfaces.WarpsMainMenu;
 import com.generalsarcasam.basicwarps.interfaces.handlers.WarpCategoryMenuClickHandler;
 import com.generalsarcasam.basicwarps.interfaces.handlers.WarpMainMenuClickHandler;
+import com.generalsarcasam.basicwarps.objects.WarpCategory;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -40,16 +41,26 @@ public final class InventoryClickEventListener implements Listener {
         event.setCancelled(true);
 
         switch (holder) {
-            case WarpsMainMenu ignored -> {
+            case WarpsMainMenu menu -> {
+
+                int pageNumber = menu.pageNumber;
 
                 Player player = (Player) event.getWhoClicked();
-                WarpMainMenuClickHandler.handleClick(player, clickedItem);
+                WarpMainMenuClickHandler.handleClick(player, clickedItem, pageNumber);
 
             }
-            case WarpCategoryMenu ignored -> {
+            case WarpCategoryMenu menu -> {
+
+                int pageNumber = menu.pageNumber;
+                WarpCategory category = menu.category;
 
                 Player player = (Player) event.getWhoClicked();
-                WarpCategoryMenuClickHandler.handleClick(player, clickedItem);
+                WarpCategoryMenuClickHandler.handleClick(
+                        category,
+                        player,
+                        clickedItem,
+                        pageNumber
+                );
             }
             default -> {
             }
