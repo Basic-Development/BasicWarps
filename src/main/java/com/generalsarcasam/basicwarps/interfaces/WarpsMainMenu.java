@@ -1,7 +1,6 @@
 package com.generalsarcasam.basicwarps.interfaces;
 
 import com.generalsarcasam.basicwarps.BasicWarps;
-import com.generalsarcasam.basicwarps.objects.Warp;
 import com.generalsarcasam.basicwarps.objects.WarpCategory;
 import com.generalsarcasam.basicwarps.utils.Constants;
 import org.bukkit.inventory.Inventory;
@@ -19,8 +18,8 @@ import static com.generalsarcasam.basicwarps.utils.Constants.baseMenu;
 @DefaultQualifier(NonNull.class)
 public final class WarpsMainMenu implements InventoryHolder {
 
-    private final Inventory menu;
     public final int pageNumber;
+    private final Inventory menu;
 
     public WarpsMainMenu(final int pageNumber) {
         this.pageNumber = pageNumber;

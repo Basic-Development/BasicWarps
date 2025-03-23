@@ -14,7 +14,10 @@ import org.bukkit.persistence.PersistentDataType;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.framework.qual.DefaultQualifier;
 
-import static com.generalsarcasam.basicwarps.utils.Constants.*;
+import static com.generalsarcasam.basicwarps.utils.Constants.CLOSE_MENU_ITEM;
+import static com.generalsarcasam.basicwarps.utils.Constants.FILLER_ITEM;
+import static com.generalsarcasam.basicwarps.utils.Constants.NEXT_PAGE_ITEM;
+import static com.generalsarcasam.basicwarps.utils.Constants.PREVIOUS_PAGE_ITEM;
 
 @DefaultQualifier(NonNull.class)
 public final class WarpCategoryMenuClickHandler {
