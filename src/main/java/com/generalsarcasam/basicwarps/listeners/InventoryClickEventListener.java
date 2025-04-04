@@ -37,8 +37,6 @@ public final class InventoryClickEventListener implements Listener {
             return;
         }
 
-        //We are handling the event, and don't want the players to get any items
-        event.setCancelled(true);
 
         switch (holder) {
             case WarpsMainMenu menu -> {
@@ -46,6 +44,9 @@ public final class InventoryClickEventListener implements Listener {
                 int pageNumber = menu.pageNumber;
 
                 Player player = (Player) event.getWhoClicked();
+
+                //We are handling the event, and don't want the players to get any items
+                event.setCancelled(true);
                 WarpMainMenuClickHandler.handleClick(player, clickedItem, pageNumber);
 
             }
@@ -55,6 +56,9 @@ public final class InventoryClickEventListener implements Listener {
                 WarpCategory category = menu.category;
 
                 Player player = (Player) event.getWhoClicked();
+
+                //We are handling the event, and don't want the players to get any items
+                event.setCancelled(true);
                 WarpCategoryMenuClickHandler.handleClick(
                         category,
                         player,
