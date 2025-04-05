@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "com.generalsarcasam.basicwarps"
-version = "1.0-SNAPSHOT"
+version = "1.0-RELEASE"
 
 indra {
     javaVersions {
