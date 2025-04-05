@@ -6,4 +6,4 @@ Warp Categories are utilized to organize Warps, all of which have Customizeable 
 
 Warp Categories carry overall permissions to deny Players access to entire categories at once.
 
-Individual Warps require specific permissions. The permission for a warp is `warps.teleport.<warp>`, where <warp> is the internal name for the warp.
+Individual Warps require specific permissions. The permission for a warp is `warps.teleport.<warp>`, where `<warp>` is the internal name for the warp.
