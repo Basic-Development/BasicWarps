@@ -165,7 +165,9 @@ public final class Constants {
 
         List<Component> lore = new ArrayList<>();
         lore.add(
-                Component.text("Update this Warp Icon with /warps icon <warp>")
+                Component.text("Update this Warp Icon with /warps icon <warp>",
+                        NamedTextColor.GRAY)
+                        .decoration(TextDecoration.ITALIC, false)
         );
 
         meta.lore(lore);

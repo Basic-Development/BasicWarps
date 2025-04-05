@@ -182,11 +182,21 @@ public final class WarpsCommand {
 
         Warp warp = context.get(WARP_KEY);
 
-        String permission = "warps.teleport." + warp.key();
+        String permission = warp.permission();
         if (!player.hasPermission(permission)) {
             player.sendMessage(Messages.noPermissionToWarp());
             return;
         }
+
+        // Determine if the Player has Permission to use Warps in this Category
+        WarpCategory category = warp.category();
+        String categoryPermission = category.permission();
+
+        if (!player.hasPermission(categoryPermission)) {
+            player.sendMessage(Messages.noPermissionToWarp());
+            return;
+        }
+
 
         //Handle Players with Teleport Timer Bypass First
         boolean playerHasBypassPermission = player.hasPermission("warps.timer.bypass");
@@ -246,7 +256,8 @@ public final class WarpsCommand {
         BukkitRunnable runnable = new BukkitRunnable() {
             @Override
             public void run() {
-                player.openInventory(new WarpsMainMenu(1).getInventory());
+                player.openInventory(new WarpsMainMenu(1, player)
+                        .getInventory());
             }
         };
         runnable.runTask(BasicWarps.plugin);

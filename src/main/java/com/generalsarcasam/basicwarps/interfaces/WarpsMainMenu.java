@@ -3,6 +3,7 @@ package com.generalsarcasam.basicwarps.interfaces;
 import com.generalsarcasam.basicwarps.BasicWarps;
 import com.generalsarcasam.basicwarps.objects.WarpCategory;
 import com.generalsarcasam.basicwarps.utils.Constants;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -21,13 +22,23 @@ public final class WarpsMainMenu implements InventoryHolder {
     public final int pageNumber;
     private final Inventory menu;
 
-    public WarpsMainMenu(final int pageNumber) {
+    public WarpsMainMenu(final int pageNumber,
+                         final Player viewer) {
         this.pageNumber = pageNumber;
 
         int inventorySize = 54;
         Inventory gui = baseMenu(inventorySize, this);
 
-        List<WarpCategory> categoryList = new ArrayList<>(BasicWarps.categories.values());
+        List<WarpCategory> categoryList = new ArrayList<>();
+        for (WarpCategory category : BasicWarps.categories.values()) {
+            if (!viewer.hasPermission(category.permission())) {
+                // The Player doesn't have Permission to use Warps in this Category
+                continue;
+            }
+
+            categoryList.add(category);
+
+        }
 
         //Determine which Categories we're interested in.
         boolean nextPage = true;

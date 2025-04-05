@@ -42,7 +42,8 @@ public final class WarpCategoryMenuClickHandler {
         if (itemClicked.equals(NEXT_PAGE_ITEM)) {
             player.closeInventory(InventoryCloseEvent.Reason.OPEN_NEW);
             player.openInventory(
-                    new WarpCategoryMenu(category, pageNumber + 1).getInventory()
+                    new WarpCategoryMenu(category, pageNumber + 1, player)
+                            .getInventory()
             );
             return;
         }
@@ -50,7 +51,8 @@ public final class WarpCategoryMenuClickHandler {
         if (itemClicked.equals(PREVIOUS_PAGE_ITEM)) {
             player.closeInventory(InventoryCloseEvent.Reason.OPEN_NEW);
             player.openInventory(
-                    new WarpCategoryMenu(category, pageNumber - 1).getInventory()
+                    new WarpCategoryMenu(category, pageNumber - 1, player)
+                            .getInventory()
             );
             return;
         }

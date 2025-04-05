@@ -101,6 +101,10 @@ public final class WarpCategory {
         this.save();
     }
 
+    public String permission() {
+        return "warps.category." + this.key;
+    }
+
     public void warps(final Map<String, Warp> warpList) {
         this.warps = warpList;
         this.save();

@@ -38,6 +38,12 @@ public final class Warp {
         this.key = key;
     }
 
+    public String permission() {
+
+        return "warps.warp." + this.key;
+
+    }
+
     public void category(final WarpCategory category) {
 
         //Remove this warp from the previous parent category

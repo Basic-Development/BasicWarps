@@ -7,6 +7,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.apache.commons.lang3.StringUtils;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -27,7 +28,8 @@ public final class WarpCategoryMenu implements InventoryHolder {
     public int pageNumber;
 
     public WarpCategoryMenu(final WarpCategory category,
-                            final int pageNumber) {
+                            final int pageNumber,
+                            final Player viewer) {
         this.category = category;
         this.pageNumber = pageNumber;
         int inventorySize = 54;
@@ -39,7 +41,16 @@ public final class WarpCategoryMenu implements InventoryHolder {
 
         Inventory gui = baseMenu(inventorySize, this, displayName);
 
-        List<Warp> warpList = new ArrayList<>(category.warps().values());
+        List<Warp> warpList = new ArrayList<>();
+        for (Warp warp : category.warps().values()) {
+
+            if (!viewer.hasPermission(warp.permission())) {
+                continue;
+            }
+
+            warpList.add(warp);
+
+        }
 
         //Determine which Warps we're interested in.
         boolean nextPage = true;
