@@ -89,6 +89,8 @@ public final class WarpCategoryMenu implements InventoryHolder {
             gui.setItem(inventorySize - 9, Constants.PREVIOUS_PAGE_ITEM);
         }
 
+        gui.setItem(0, Constants.PREVIOUS_MENU_ITEM);
+
         //Finalize the GUI initialization
         this.menu = gui;
 

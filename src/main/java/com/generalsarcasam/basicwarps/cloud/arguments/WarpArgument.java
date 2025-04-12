@@ -30,8 +30,8 @@ public final class WarpArgument implements DescribedArgumentParser<Warp> {
 
         for (WarpCategory category : BasicWarps.categories.values()) {
 
-            if (category.warps().containsKey(input)) {
-                return ArgumentParseResult.success(category.warps().get(input));
+            if (category.warps().containsKey(input.toLowerCase())) {
+                return ArgumentParseResult.success(category.warps().get(input.toLowerCase()));
             }
 
         }
@@ -54,7 +54,7 @@ public final class WarpArgument implements DescribedArgumentParser<Warp> {
 
     private static final class UnknownWarpException extends Exception {
         UnknownWarpException(final String badWarpKey) {
-            super(badWarpKey + " is not a valid Warp name!");
+            super(badWarpKey + " is not a valid Warp name");
         }
 
     }

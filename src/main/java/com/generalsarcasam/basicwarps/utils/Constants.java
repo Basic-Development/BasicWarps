@@ -13,6 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,8 @@ public final class Constants {
     public static final ItemStack CLOSE_MENU_ITEM = closeMenuItem();
     public static final ItemStack NEXT_PAGE_ITEM = nextPageItem();
     public static final ItemStack PREVIOUS_PAGE_ITEM = previousPageItem();
+    public static final @Nullable ItemStack PREVIOUS_MENU_ITEM = previousMenuItem();
+
     private Constants() {
     }
 
@@ -85,6 +88,21 @@ public final class Constants {
         //Set the Display Name to "Previous Page"
         meta.displayName(
                 Component.text("Previous Page", NamedTextColor.YELLOW)
+                        .decoration(TextDecoration.BOLD, true)
+                        .decoration(TextDecoration.ITALIC, false)
+        );
+
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    private static ItemStack previousMenuItem() {
+        ItemStack item = new ItemStack(Material.ORANGE_STAINED_GLASS_PANE);
+        ItemMeta meta = item.getItemMeta();
+
+        //Set the Display Name to "Previous Page"
+        meta.displayName(
+                Component.text("Previous Menu", NamedTextColor.GOLD)
                         .decoration(TextDecoration.BOLD, true)
                         .decoration(TextDecoration.ITALIC, false)
         );

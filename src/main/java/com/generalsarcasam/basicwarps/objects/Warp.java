@@ -23,7 +23,7 @@ public final class Warp {
                 final WarpCategory category,
                 final ItemStack warpIcon,
                 final Location location) {
-        this.key = key;
+        this.key = key.toLowerCase();
         this.category = category;
         this.warpIcon = warpIcon;
         this.location = location;
@@ -35,7 +35,7 @@ public final class Warp {
     }
 
     public void key(final String key) {
-        this.key = key;
+        this.key = key.toLowerCase();
     }
 
     public String permission() {
@@ -57,7 +57,7 @@ public final class Warp {
 
         //Update the new category to add this warp
         Map<String, Warp> warps = category.warps();
-        warps.put(this.key, this);
+        warps.put(this.key.toLowerCase(), this);
         category.warps(warps);
     }
 
@@ -81,7 +81,7 @@ public final class Warp {
     }
 
     public String key() {
-        return this.key;
+        return this.key.toLowerCase();
     }
 
     public WarpCategory category() {

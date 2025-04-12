@@ -36,7 +36,7 @@ public final class WarpCategory {
     public WarpCategory(final String key,
                         final Map<String, Warp> warps,
                         final ItemStack icon) {
-        this.key = key;
+        this.key = key.toLowerCase();
         this.warps = warps;
         this.icon = icon;
 
@@ -97,7 +97,7 @@ public final class WarpCategory {
     }
 
     public void key(final String key) {
-        this.key = key;
+        this.key = key.toLowerCase();
         this.save();
     }
 

@@ -2,6 +2,7 @@ package com.generalsarcasam.basicwarps.interfaces.handlers;
 
 import com.generalsarcasam.basicwarps.BasicWarps;
 import com.generalsarcasam.basicwarps.interfaces.WarpCategoryMenu;
+import com.generalsarcasam.basicwarps.interfaces.WarpsMainMenu;
 import com.generalsarcasam.basicwarps.objects.Warp;
 import com.generalsarcasam.basicwarps.objects.WarpCategory;
 import com.generalsarcasam.basicwarps.utils.Messages;
@@ -17,6 +18,7 @@ import org.checkerframework.framework.qual.DefaultQualifier;
 import static com.generalsarcasam.basicwarps.utils.Constants.CLOSE_MENU_ITEM;
 import static com.generalsarcasam.basicwarps.utils.Constants.FILLER_ITEM;
 import static com.generalsarcasam.basicwarps.utils.Constants.NEXT_PAGE_ITEM;
+import static com.generalsarcasam.basicwarps.utils.Constants.PREVIOUS_MENU_ITEM;
 import static com.generalsarcasam.basicwarps.utils.Constants.PREVIOUS_PAGE_ITEM;
 
 @DefaultQualifier(NonNull.class)
@@ -57,30 +59,42 @@ public final class WarpCategoryMenuClickHandler {
             return;
         }
 
+        if (itemClicked.equals(PREVIOUS_MENU_ITEM)) {
+            player.closeInventory(InventoryCloseEvent.Reason.OPEN_NEW);
+            player.openInventory(
+                    new WarpsMainMenu(1, player)
+                            .getInventory()
+            );
+            return;
+        }
+
         //The only other items in the GUI are Warp Icons
         ItemMeta meta = itemClicked.getItemMeta();
         PersistentDataContainer pdc = meta.getPersistentDataContainer();
 
         //Get the Name of the Warp Category
-        String categoryName = pdc.getOrDefault(BasicWarps.warpCategoryKey, PersistentDataType.STRING, "none");
+        String categoryName = pdc.getOrDefault(BasicWarps.warpCategoryKey, PersistentDataType.STRING, "none")
+                .toLowerCase();
         if (categoryName.equalsIgnoreCase("none")) {
             player.closeInventory(InventoryCloseEvent.Reason.PLUGIN);
             player.sendMessage(Messages.invalidWarpCategory(categoryName));
             return;
         }
 
-        String warpName = pdc.getOrDefault(BasicWarps.warpNameKey, PersistentDataType.STRING, "none");
+        String warpName = pdc.getOrDefault(BasicWarps.warpNameKey, PersistentDataType.STRING, "none")
+                .toLowerCase();
         if (!category.warps().containsKey(warpName)) {
             player.closeInventory(InventoryCloseEvent.Reason.PLUGIN);
             player.sendMessage(Messages.invalidWarp(warpName));
+            return;
         }
 
-        Warp warp = category.warps().get(warpName);
+        Warp warp = category.warps().get(warpName.toLowerCase());
 
         //Process Command to Warp Player to Warp Location
         player.closeInventory(InventoryCloseEvent.Reason.PLUGIN);
         BasicWarps.plugin.getServer().dispatchCommand(
-                player, "basicwarps:warps  " + warp.key()
+                player, "basicwarps:warps  " + warp.key().toLowerCase()
         );
 
     }
