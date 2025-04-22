@@ -286,7 +286,7 @@ public final class WarpsCommand {
 
         Location location = player.getLocation();
 
-        Warp warp = new Warp(warpName, category, defaultItem, location);
+        Warp warp = new Warp(warpName, category, defaultItem, location, System.currentTimeMillis());
 
         player.sendMessage(Messages.createdWarp(warp));
 

@@ -16,6 +16,7 @@ import org.checkerframework.framework.qual.DefaultQualifier;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import static com.generalsarcasam.basicwarps.utils.Constants.baseMenu;
@@ -51,6 +52,8 @@ public final class WarpCategoryMenu implements InventoryHolder {
             warpList.add(warp);
 
         }
+
+        warpList.sort(Comparator.comparingLong(Warp::creation));
 
         //Determine which Warps we're interested in.
         boolean nextPage = true;
