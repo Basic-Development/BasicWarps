@@ -83,7 +83,7 @@ public final class WarpCategory {
 
             ItemStack warpIcon = ItemStack.deserializeBytes(savedWarp.icon());
 
-            Warp warp = new Warp(warpKey, category, warpIcon, warpLocation, savedWarp.creation());
+            Warp warp = new Warp(warpKey, category, warpIcon, warpLocation, savedWarp.priority());
             warps.put(warpKey, warp);
         }
 
@@ -159,7 +159,7 @@ public final class WarpCategory {
             Location location = warp.location();
             Map<String, Object> serializedLocation = location.serialize();
 
-            SavedWarp savedWarp = new SavedWarp(key, icon, serializedLocation, warp.creation());
+            SavedWarp savedWarp = new SavedWarp(key, icon, serializedLocation, warp.priority());
 
             String warpDataString = GSON.toJson(savedWarp);
 
@@ -191,7 +191,7 @@ public final class WarpCategory {
     private record SavedWarp(String key,
                             byte[] icon,
                             Map<String, Object> serializedLocation,
-                            long creation) {
+                            long priority) {
     }
 
 }

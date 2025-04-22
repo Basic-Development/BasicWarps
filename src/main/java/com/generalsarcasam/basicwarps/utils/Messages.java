@@ -158,4 +158,9 @@ public final class Messages {
         return format("Something odd happened. Failed to get a Warp with the name "
                 + warpName + "! Please notify an admin.", ERROR_COLOR);
     }
+
+    public static Component updatedWarpPriority(final Warp warp,
+                                                final long priority) {
+        return format("Updated the priority for Warp " + warp.key() + " to " + priority, MESSAGE_COLOR);
+    }
 }

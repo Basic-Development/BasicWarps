@@ -53,7 +53,7 @@ public final class WarpCategoryMenu implements InventoryHolder {
 
         }
 
-        warpList.sort(Comparator.comparingLong(Warp::creation));
+        warpList.sort(Comparator.comparingLong(Warp::priority));
 
         //Determine which Warps we're interested in.
         boolean nextPage = true;

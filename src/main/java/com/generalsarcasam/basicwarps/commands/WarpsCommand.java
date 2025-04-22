@@ -21,6 +21,7 @@ import org.incendo.cloud.context.CommandContext;
 import org.incendo.cloud.key.CloudKey;
 import org.incendo.cloud.paper.util.sender.PlayerSource;
 import org.incendo.cloud.paper.util.sender.Source;
+import org.incendo.cloud.parser.standard.LongParser;
 import org.incendo.cloud.parser.standard.StringParser;
 import org.incendo.cloud.processors.cache.SimpleCache;
 import org.incendo.cloud.processors.confirmation.ConfirmationContext;
@@ -118,6 +119,15 @@ public final class WarpsCommand {
                 .permission("warps.command.location")
                 .required("warp", new WarpArgument())
                 .handler(this::handleUpdateLocation)
+        );
+
+        //Command: /warps priority <warp> <priority>
+        commandManager.command(baseCommand
+                .literal("priority")
+                .permission("warps.command.priority")
+                .required("warp", new WarpArgument())
+                .required("priority", LongParser.longParser())
+                .handler(this::handleUpdatePriority)
         );
 
         //Command: /warps warpicon <warp|category>
@@ -347,6 +357,20 @@ public final class WarpsCommand {
         category.icon(item);
 
         player.sendMessage(Messages.updatedCategoryIcon(category));
+
+    }
+
+    private void handleUpdatePriority(final CommandContext<PlayerSource> context) {
+
+        Player player = context.sender().source();
+
+        Warp warp = context.get(WARP_KEY);
+
+        long priority = context.get("priority");
+
+        warp.priority(priority);
+
+        player.sendMessage(Messages.updatedWarpPriority(warp, priority));
 
     }
 

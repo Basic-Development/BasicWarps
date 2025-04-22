@@ -18,18 +18,18 @@ public final class Warp {
     private WarpCategory category;
     private ItemStack warpIcon;
     private Location location;
-    private final long creation;
+    private long priority;
 
     public Warp(final String key,
                 final WarpCategory category,
                 final ItemStack warpIcon,
                 final Location location,
-                final long creation) {
+                final long priority) {
         this.key = key.toLowerCase();
         this.category = category;
         this.warpIcon = warpIcon;
         this.location = location;
-        this.creation = creation;
+        this.priority = priority;
 
         Map<String, Warp> warps = category.warps();
         warps.put(this.key, this);
@@ -40,6 +40,15 @@ public final class Warp {
 
     public void key(final String key) {
         this.key = key.toLowerCase();
+        this.save();
+    }
+
+    public long priority() {
+        return this.priority;
+    }
+
+    public void priority(final long priority) {
+        this.priority = priority;
         this.save();
     }
 
@@ -102,10 +111,6 @@ public final class Warp {
 
     public Location location() {
         return this.location;
-    }
-
-    public long creation() {
-        return this.creation;
     }
 
     //invokes the WarpCategory#save method for the category that this warp belongs to
