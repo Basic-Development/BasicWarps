@@ -132,7 +132,6 @@ public final class Constants {
 
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-        meta.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
 
         item.setItemMeta(meta);
         return item;
