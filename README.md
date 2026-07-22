@@ -1,3 +1,5 @@
+[![Java CI with Gradle](https://github.com/Basic-Development/BasicWarps/actions/workflows/gradle.yml/badge.svg)](https://github.com/Basic-Development/BasicWarps/actions/workflows/gradle.yml)
+
 # BasicWarps
 
 ![Basic Warps](https://github.com/Basic-Development/BasicWarps/blob/master/W%20logo.png)
